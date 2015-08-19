@@ -1,0 +1,8 @@
+/Users/yepuv1/Downloads/zookeeper/src/dotnet/Curator-Client/obj/Debug/.NETFramework,Version=v4.5.AssemblyAttribute.cs
+/Users/yepuv1/Downloads/zookeeper/src/dotnet/Curator-Client/bin/Debug/log4net.dll
+/Users/yepuv1/Downloads/zookeeper/src/dotnet/Curator-Client/bin/Debug/ZooKeeperNet.dll
+/Users/yepuv1/Downloads/zookeeper/src/dotnet/Curator-Client/bin/Debug/ZooKeeperNet.dll.mdb
+/Users/yepuv1/Downloads/zookeeper/src/dotnet/Curator-Client/bin/Debug/Curator-Client.dll.mdb
+/Users/yepuv1/Downloads/zookeeper/src/dotnet/Curator-Client/bin/Debug/Curator-Client.dll
+/Users/yepuv1/Downloads/zookeeper/src/dotnet/Curator-Client/obj/Debug/Curator-Client.dll
+/Users/yepuv1/Downloads/zookeeper/src/dotnet/Curator-Client/obj/Debug/Curator-Client.dll.mdb
