@@ -175,7 +175,7 @@ namespace CuratorClient
 					{
 //						if ( !bool.getBoolean(DebugUtils.PROPERTY_DONT_LOG_CONNECTION_ISSUES) )
 //						{
-//							log.warn(String.format("Connection attempt unsuccessful after %d (greater than max timeout of %d). Resetting connection and trying again with a new connection.", elapsed, maxTimeout));
+							log.Warn(String.Format("Connection attempt unsuccessful after ({0}) (greater than max timeout of ({1})). Resetting connection and trying again with a new connection.", elapsed, maxTimeout));
 //						}
 						Reset();
 					}
@@ -184,7 +184,7 @@ namespace CuratorClient
 						KeeperException.ConnectionLossException connectionLossException = new CuratorConnectionLossException();
 //						if ( !bool.getBoolean(DebugUtils.PROPERTY_DONT_LOG_CONNECTION_ISSUES) )
 //						{
-//							log.error(String.format("Connection timed out for connection string (%s) and timeout (%d) / elapsed (%d)", zooKeeper.getConnectionString(), connectionTimeout, elapsed), connectionLossException);
+							log.Error(String.Format("Connection timed out for connection string ({0}) and timeout ({1}) / elapsed ({2})", zooKeeper.GetConnectionString(), connectionTimeout, elapsed), connectionLossException);
 //						}
 						tracer.AddCount("connections-timed-out", 1);
 						throw connectionLossException;

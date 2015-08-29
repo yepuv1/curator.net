@@ -18,7 +18,7 @@ namespace CuratorClient
      */
 		public FixedEnsembleProvider(String connectionString)
 		{
-			Contract.Requires<ArgumentNullException> (string.IsNullOrEmpty (connectionString), "connectionString cannot be null");
+			//Contract.Requires<ArgumentNullException> (string.IsNullOrEmpty (connectionString), "connectionString cannot be null");
 			this.connectionString = connectionString;
 		}
 

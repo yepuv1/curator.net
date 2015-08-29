@@ -86,20 +86,21 @@ public class SessionFailRetryLoop : IDisposable
 		FAIL
 	}
 
-	private class  tempWatcher: IWatcher
+	public class  tempWatcher<T>: IWatcher
 	{
+        Func<T> func;
+        public tempWatcher(Func<T> func){
+        this.func = func;
+        }
+
 		public void Process(WatchedEvent @event)
 		{
 			if ( @event.State == KeeperState.Expired )
 			{
-				
-				SessionFailRetryLoop.sessionHasFailed = true;
-				failedSessionThreads.GetOrAdd (ourThread, false);
+                    func();
 			}
 		}
 	};
-
-
 
 
 	public class SessionFailedException : Exception
@@ -108,18 +109,17 @@ public class SessionFailRetryLoop : IDisposable
 	}
 
 
-	private  CuratorZookeeperClient    client;
-	private  static SessionFailRetryLoop.Mode                      mode;
-	private  static Thread                    ourThread = Thread.CurrentThread;
-	private  static bool             sessionHasFailed = false;
-	private  bool             isDone = false;
-	private  RetryLoop                 retryLoop;
-	private  static ConcurrentDictionary<Thread,bool> failedSessionThreads = new ConcurrentDictionary<Thread, bool>();
-	private  IWatcher watcher = new tempWatcher ();
+	private  readonly CuratorZookeeperClient client;
+	private  readonly SessionFailRetryLoop.Mode  mode;
+	private  readonly Thread ourThread = Thread.CurrentThread;
+	private  bool   sessionHasFailed = false;
+	private  bool   isDone = false;
+	private  readonly RetryLoop  retryLoop;
+	private  static readonly ConcurrentDictionary<Thread,bool> failedSessionThreads = new ConcurrentDictionary<Thread, bool>();
+    private IWatcher watcher;
 
 
-
-	/**
+    /**
      * Convenience utility: creates a "session fail" retry loop calling the given proc
      *
      * @param client Zookeeper
@@ -130,7 +130,7 @@ public class SessionFailRetryLoop : IDisposable
      * @throws Exception any non-retriable errors
      */
 
-	public static T CallWithRetry<T>(CuratorZookeeperClient client, Func<T> proc) 
+    public static T CallWithRetry<T>(CuratorZookeeperClient client, Mode mode, Func<T> proc) 
 	{
 		T               result = default(T);
 		SessionFailRetryLoop    retryLoop = client.NewSessionFailRetryLoop(mode);
@@ -161,12 +161,20 @@ public class SessionFailRetryLoop : IDisposable
 
 	public SessionFailRetryLoop(CuratorZookeeperClient client, Mode _mode)
 	{
-		this.client = client;
+        watcher = new tempWatcher<bool>(() => {
+
+            sessionHasFailed = true;
+            failedSessionThreads.GetOrAdd(ourThread, false);
+            return true;
+        });
+
+
+        this.client = client;
 		mode = _mode;
 		retryLoop = client.NewRetryLoop();
 	}
 
-	static public bool SessionForThreadHasFailed()
+	public static bool SessionForThreadHasFailed()
 	{
 		return (failedSessionThreads.Count > 0) && failedSessionThreads.ContainsKey(Thread.CurrentThread);
 	}
@@ -174,7 +182,7 @@ public class SessionFailRetryLoop : IDisposable
 	/**
      * SessionFailRetryLoop must be started
      */
-	public void     Start()
+	public void Start()
 	{
 		Contract.Ensures(Thread.CurrentThread.Equals(ourThread), "Not in the correct thread");
 		//Preconditions.checkState(Thread.CurrentThread.Equals(ourThread), "Not in the correct thread");
@@ -185,7 +193,7 @@ public class SessionFailRetryLoop : IDisposable
 	/**
      * Call this when your operation has successfully completed
      */
-	public void     MarkComplete()
+	public void MarkComplete()
 	{
 		isDone = true;
 	}
@@ -194,7 +202,7 @@ public class SessionFailRetryLoop : IDisposable
      *
      * @return true/false
      */
-	public bool      ShouldContinue()
+	public bool ShouldContinue()
 	{
 			isDone = true;
 			
@@ -209,10 +217,8 @@ public class SessionFailRetryLoop : IDisposable
 	public void Dispose()
 	{
 		Contract.Ensures( Thread.CurrentThread.Equals(ourThread),"Not in the correct thread");
-
-			bool tmpValue;
-			failedSessionThreads.TryRemove (ourThread, out tmpValue);
-
+        bool tmpValue;
+		failedSessionThreads.TryRemove (ourThread, out tmpValue);
 		client.RemoveParentWatcher(watcher);
 	}
 
@@ -222,7 +228,7 @@ public class SessionFailRetryLoop : IDisposable
      * @param exception the exception
      * @throws Exception if not retry-able or the retry policy returned negative
      */
-	public void         TakeException(Exception exception)
+	public void TakeException(Exception exception)
 	{
 		Contract.Ensures( Thread.CurrentThread.Equals(ourThread),"Not in the correct thread");
 
@@ -233,7 +239,7 @@ public class SessionFailRetryLoop : IDisposable
 			{
 			case Mode.RETRY:
 				{
-						sessionHasFailed = false;
+					sessionHasFailed = false;
 					//Interlocked.Exchange(ref sessionHasFailed, false);
 					bool tmpvalue;
 					failedSessionThreads.TryRemove (ourThread, out tmpvalue);

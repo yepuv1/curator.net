@@ -139,7 +139,7 @@ namespace CuratorClient
 			if ( exception.GetType() == typeof( KeeperException ))
 			{
 				KeeperException     keeperException = (KeeperException)exception;
-			return ShouldRetry((int)keeperException.ErrorCode);
+			return ShouldRetry((int)keeperException.GetCode());
 			}
 			return false;
 		}

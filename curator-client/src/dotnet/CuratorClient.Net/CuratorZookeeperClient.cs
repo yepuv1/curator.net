@@ -17,11 +17,11 @@ namespace CuratorClient
 
 	public class CuratorZookeeperClient: IDisposable
 	{
-		private static readonly ILog log = LogManager.GetLogger(typeof(CuratorZookeeperClient));
-		private  ConnectionState   state;
+		private  static readonly ILog log = LogManager.GetLogger(typeof(CuratorZookeeperClient));
+		private  readonly ConnectionState   state;
 		private  IRetryPolicy      retryPolicy =  null;
-		private  int               connectionTimeoutMs;
-		private  bool              started = false;
+		private  readonly int               connectionTimeoutMs;
+		private  bool started = false;
 		private  ITracerDriver     tracer = new DefaultTracerDriver();
 
 		/**

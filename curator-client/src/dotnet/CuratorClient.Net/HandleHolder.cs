@@ -9,21 +9,21 @@ namespace CuratorClient
 	public class HandleHolder
 	{
 		
-		private  static IZookeeperFactory zookeeperFactory;
-		private  static IWatcher watcher;
-		private  static IEnsembleProvider ensembleProvider;
-		private  static TimeSpan sessionTimeout;
-		private  static bool canBeReadOnly;
-		private  static IHelper helper = null;
+		private  readonly IZookeeperFactory zookeeperFactory;
+		private  readonly IWatcher watcher;
+		private  readonly IEnsembleProvider ensembleProvider;
+		private  readonly TimeSpan sessionTimeout;
+		private  readonly bool canBeReadOnly;
+		private  volatile IHelper helper = null;
 
 		public HandleHolder(IZookeeperFactory zookeeperFactory, IWatcher watcher, IEnsembleProvider ensembleProvider, TimeSpan sessionTimeout, bool canBeReadOnly)
 		{
-			zookeeperFactory = zookeeperFactory;
-			watcher = watcher;
-			ensembleProvider = ensembleProvider;
-			sessionTimeout = sessionTimeout;
-			canBeReadOnly = canBeReadOnly;
-			helper = new Helper ();
+			this.zookeeperFactory = zookeeperFactory;
+            this.watcher = watcher;
+            this.ensembleProvider = ensembleProvider;
+            this.sessionTimeout = sessionTimeout;
+            this.canBeReadOnly = canBeReadOnly;
+            this.helper = null;
 		}
 
 		public IZooKeeper GetZooKeeper() 
@@ -54,7 +54,7 @@ namespace CuratorClient
 
 			// first helper is synchronized when getZooKeeper is called. Subsequent calls
 			// are not synchronized.
-			helper = new Helper();
+			helper = new SyncHelper(this);
 		}
 
 		private void InternalClose() 
@@ -64,7 +64,7 @@ namespace CuratorClient
 				IZooKeeper zooKeeper = (helper != null) ? helper.GetZooKeeper() : null;
 				if ( zooKeeper != null )
 				{
-					IWatcher dummyWatcher = new DummyWatcher();
+					IWatcher dummyWatcher = new CuratorWatcher();
 					zooKeeper.Register(dummyWatcher);   // clear the default watcher so that no new events get processed by mistake
 					zooKeeper.Dispose();
 				}
@@ -76,31 +76,67 @@ namespace CuratorClient
 			}
 		}
 
-		[System.Runtime.Remoting.Contexts.Synchronization]
-		public class Helper : IHelper
+		
+		private class SyncHelper : IHelper
 		{
 			private volatile IZooKeeper zooKeeperHandle = null;
 			private volatile String connectionString = null;
+            private HandleHolder parent;
+
+            public SyncHelper(HandleHolder parent)
+            {
+                this.parent = parent;
+            }
 
 			public IZooKeeper GetZooKeeper() 
 			{
+                lock (this)
+                {
 
-				if ( zooKeeperHandle == null )
-				{
-					connectionString = ensembleProvider.GetConnectionString();
-					zooKeeperHandle = zookeeperFactory.NewZooKeeper(connectionString, sessionTimeout, watcher, canBeReadOnly);
-				}
+                    if (zooKeeperHandle == null)
+                    {
+                        connectionString = parent.ensembleProvider.GetConnectionString();
+                        zooKeeperHandle =  parent.zookeeperFactory.NewZooKeeper(connectionString, parent.sessionTimeout, parent.watcher, parent.canBeReadOnly);
+                    }
 
-				return zooKeeperHandle;
-
+                    parent.helper = new SyncHelper.Helper(this);
+                    return zooKeeperHandle;
+                }
 			}
 
 			public String GetConnectionString()
 			{
 				return connectionString;
 			}
-		}
-	}
+
+            class Helper : IHelper
+            {
+                private volatile IZooKeeper zooKeeperHandle = null;
+                private volatile String connectionString = null;
+                private SyncHelper parent;
+
+                public Helper(SyncHelper parent)
+                {
+                    this.parent = parent;
+                    zooKeeperHandle = parent.zooKeeperHandle;
+                    connectionString = parent.connectionString;
+                }
+
+                public IZooKeeper GetZooKeeper()
+                {
+                    return parent.zooKeeperHandle;
+                   
+                }
+
+                public String GetConnectionString()
+                {
+                    return parent.connectionString;
+                }
+            }
+        }
+
+      
+    }
 
 }
 
