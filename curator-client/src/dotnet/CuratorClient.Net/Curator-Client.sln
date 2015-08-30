@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Curator-Client", "Curator-Client.csproj", "{312D7F4B-6D81-4085-B787-314EC611041E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Curator-Client.Test", "Curator-Client.Test\Curator-Client.Test.csproj", "{FD11591C-C4C1-45A7-B4DF-583427AEC746}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CuratorCon.Test", "CuratorCon.Test\CuratorCon.Test.csproj", "{95629A7E-186A-4DD8-AA61-B58CEB059DC5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{312D7F4B-6D81-4085-B787-314EC611041E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{312D7F4B-6D81-4085-B787-314EC611041E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{312D7F4B-6D81-4085-B787-314EC611041E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{312D7F4B-6D81-4085-B787-314EC611041E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95629A7E-186A-4DD8-AA61-B58CEB059DC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95629A7E-186A-4DD8-AA61-B58CEB059DC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95629A7E-186A-4DD8-AA61-B58CEB059DC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95629A7E-186A-4DD8-AA61-B58CEB059DC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD11591C-C4C1-45A7-B4DF-583427AEC746}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD11591C-C4C1-45A7-B4DF-583427AEC746}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD11591C-C4C1-45A7-B4DF-583427AEC746}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD11591C-C4C1-45A7-B4DF-583427AEC746}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

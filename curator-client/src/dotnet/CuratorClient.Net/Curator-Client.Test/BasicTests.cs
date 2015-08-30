@@ -178,7 +178,7 @@ namespace Curator.NET.Test
             using (CuratorZookeeperClient client = new CuratorZookeeperClient(server.GetConnectionString(), 10000, CONNECTION_TIMEOUT_MS, null, new RetryOneTime(TimeSpan.FromSeconds(1))))
             {
                
-                Assert.IsFalse(client.IsConnected());
+                Assert.False(client.IsConnected());
                 client.Start();
 
                 outer:
